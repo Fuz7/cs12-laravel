@@ -36,6 +36,7 @@ class CustomerFactory extends Factory
             //
             'first_name'=>fake()->firstName(),
             'last_name'=>fake()->lastName(),
+            'email'=>fake()->email(),
             'company_name'=>fake()->company(),
             'phone'=>fake()->phoneNumber(),
             'billing_address'=>fake()->streetAddress(),
