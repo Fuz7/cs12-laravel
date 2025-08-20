@@ -70,6 +70,9 @@ class LeadController extends Controller
       'notes'  => 'sometimes|string|nullable',
     ]);
 
+    foreach (['email', 'phone', 'company', 'status', 'notes'] as $field) {
+      $validated[$field] = $validated[$field] ?? '';
+    }
     $lead->update($validated);
 
     return response()->json($lead);
@@ -114,7 +117,7 @@ class LeadController extends Controller
       'lead_source' => $lead->source,
     ]);
 
-    $lead->update(['status'=>'converted']);
+    $lead->update(['status' => 'converted']);
 
 
     return response()->json();

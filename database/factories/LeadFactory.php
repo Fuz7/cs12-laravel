@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class LeadFactory extends Factory
 {
+    protected static $time;
+
     /**
      * Define the model's default state.
      *
@@ -41,8 +44,16 @@ class LeadFactory extends Factory
         ];
         return ($leadStatus[array_rand($leadStatus)]);
     }
+
+
     public function definition(): array
     {
+        if (! static::$time) {
+            static::$time = Carbon::now()->subDays(10);
+        }
+
+        $time = static::$time->copy();
+        static::$time->addMinutes(10); // increment
         return [
             //
             'first_name' => fake()->firstName(),
@@ -52,7 +63,9 @@ class LeadFactory extends Factory
             'company' => fake()->company(),
             'status' => $this->getRandomStatus(),
             'source' => $this->getRandomLeadSource(),
-            'notes'=> fake()->sentence(),
+            'notes' => fake()->sentence(),
+            'updated_at' => $time,
+            'created_at' => $time,
         ];
     }
 }

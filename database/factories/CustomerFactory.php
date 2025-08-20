@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -10,7 +11,10 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class CustomerFactory extends Factory
 {
 
-    private function getRandomLeadSource(){
+    protected static $time;
+
+    private function getRandomLeadSource()
+    {
         $leadSources = [
             'Website',
             'Referral',
@@ -20,7 +24,7 @@ class CustomerFactory extends Factory
             'Trade Show',
             'Advertisement',
             'Cold Outreach',
-            'Other',    
+            'Other',
         ];
         return ($leadSources[array_rand($leadSources)]);
     }
@@ -32,16 +36,24 @@ class CustomerFactory extends Factory
      */
     public function definition(): array
     {
+        if (! static::$time) {
+            static::$time = Carbon::now()->subDays(10);
+        }
+
+        $time = static::$time->copy();
+        static::$time->addMinutes(10); // increment
         return [
             //
-            'first_name'=>fake()->firstName(),
-            'last_name'=>fake()->lastName(),
-            'email'=>fake()->email(),
-            'company_name'=>fake()->company(),
-            'phone'=>fake()->phoneNumber(),
-            'billing_address'=>fake()->streetAddress(),
-            'property_address'=>fake()->streetAddress(),
-            'lead_source'=>$this->getRandomLeadSource(),
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+            'email' => fake()->email(),
+            'company_name' => fake()->company(),
+            'phone' => fake()->phoneNumber(),
+            'billing_address' => fake()->streetAddress(),
+            'property_address' => fake()->streetAddress(),
+            'lead_source' => $this->getRandomLeadSource(),
+            'updated_at'=>$time,
+            'created_at'=>$time,
         ];
     }
 }
