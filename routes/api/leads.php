@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->group(function () {
 
   Route::get('/leads', [LeadController::class, 'getPaginatedLead']);
-  Route::get('/leads/{id}', [LeadController::class, 'getCustomerById']);
   Route::post('/leads/{id}', [LeadController::class, 'store']);
   Route::patch('/leads/{id}', [LeadController::class, 'update']);
+  Route::patch('/leads/{id}/convert', [LeadController::class, 'convertToCustomer']);
   Route::delete('/leads/{id}', [LeadController::class, 'delete']);
   Route::delete('/leads', [LeadController::class, 'deleteByBatch']);
 });
