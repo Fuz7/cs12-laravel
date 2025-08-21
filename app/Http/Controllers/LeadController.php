@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Lead;
+use App\Models\User;
 use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
 
@@ -104,22 +105,33 @@ class LeadController extends Controller
 
     return response()->json();
   }
+
   public function convertToCustomer(Request $request, $id)
   {
     $lead = Lead::findOrFail($id);
-    Customer::create([
-      'first_name' => $lead->first_name,
-      'last_name' => $lead->last_name,
-      'email' => $lead->email,
-      'company_name' => $lead->company,
-      'phone' => $lead->phone,
-      'address' => "",
-      'lead_source' => $lead->source,
-    ]);
 
+    // Always keep email from lead
+    $email = $lead->email;
+
+    Customer::updateOrCreate(
+      ['email' => $email], // search by lead email
+      [
+        'first_name'       => $request->input('first_name', $lead->first_name),
+        'last_name'        => $request->input('last_name', $lead->last_name),
+        'company_name'     => $request->input('company_name', $lead->company),
+        'phone'            => $request->input('phone', $lead->phone),
+        'property_address' => $request->input('property_address', ''),
+        'billing_address'  => "",
+        'lead_source'      => $request->input('lead_source', $lead->source),
+        'email'            => $email, // enforce lead email
+      ]
+    );
+
+    // Update lead status
     $lead->update(['status' => 'converted']);
 
-
-    return response()->json();
+    return response()->json([
+      'message' => 'Lead converted successfully',
+    ]);
   }
 }
