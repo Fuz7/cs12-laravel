@@ -32,9 +32,9 @@ class LeadController extends Controller
     }
 
     $query->orderBy($sortBy, $sortOrder);
-    $customers = $query->paginate($perPage, ['*'], 'page', $page);
+    $leads = $query->paginate($perPage, ['*'], 'page', $page);
 
-    return response()->json($customers);
+    return response()->json($leads);
   }
 
   public function store(Request $request)
