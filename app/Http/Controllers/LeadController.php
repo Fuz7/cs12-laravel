@@ -111,24 +111,27 @@ class LeadController extends Controller
     $lead = Lead::findOrFail($id);
 
     // Always keep email from lead
-    $email = $lead->email;
+    $email = $request->input("email");
 
     Customer::updateOrCreate(
       ['email' => $email], // search by lead email
       [
-        'first_name'       => $request->input('first_name', $lead->first_name),
-        'last_name'        => $request->input('last_name', $lead->last_name),
-        'company_name'     => $request->input('company_name', $lead->company),
-        'phone'            => $request->input('phone', $lead->phone),
-        'property_address' => $request->input('property_address', ''),
+        'first_name'       => $request->input('first_name') ?: ($lead->first_name ?: ""),
+        'last_name'        => $request->input('last_name') ?: ($lead->last_name ?: ""),
+        'company_name'     => $request->input('company_name') ?: ($lead->company ?: ""),
+        'phone'            => $request->input('phone') ?: ($lead->phone ?: ""),
+        'property_address' => $request->input('property_address') ?: "",
         'billing_address'  => "",
-        'lead_source'      => $request->input('lead_source', $lead->source),
-        'email'            => $email, // enforce lead email
+        'lead_source'      => $request->input('lead_source') ?: ($lead->source ?: ""),
+        'email'            => $email,
       ]
     );
 
     // Update lead status
-    $lead->update(['status' => 'converted']);
+    $lead->update([
+      'status' => 'converted',
+      'email' => $request->input('email', $email)
+    ]);
 
     return response()->json([
       'message' => 'Lead converted successfully',
