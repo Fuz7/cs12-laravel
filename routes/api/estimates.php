@@ -5,5 +5,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
-  Route::get('/estimates', [EstimateController::class, 'getPaginatedLead']);
+  Route::get('/estimates', [EstimateController::class, 'getPaginatedEstimate']);
 });

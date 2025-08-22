@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text("job_name");
             $table->text("status");
             $table->text("notes");
+            $table->decimal('tasks_total_price', 12, 2)->default(0);
             $table->timestamps();
         });
     }

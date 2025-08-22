@@ -10,6 +10,11 @@ class Customer extends Model
     /** @use HasFactory<\Database\Factories\CustomerFactory> */
     use HasFactory;
 
+    public function customer()
+    {
+        return $this->hasMany(Estimate::class, 'customer_id');
+    }
+
     /**
      * The attributes that are mass assignable.
      *
