@@ -147,4 +147,29 @@ class EstimateController extends Controller
 
     return response()->json($estimate);
   }
+  public function delete(Request $request, $id)
+  {
+    $estimate = Estimate::findOrFail($id);
+
+
+
+    $estimate->delete();
+
+    return response()->json();
+  }
+  public function deleteByBatch(Request $request,)
+  {
+    $ids = $request->input('ids', []); // expects: [1,2,3,...]
+
+    if (empty($ids)) {
+      return response()->json([
+        'status' => 'error',
+        'message' => 'No IDs provided'
+      ], 400);
+    }
+
+    Estimate::whereIn('id', $ids)->delete();
+
+    return response()->json();
+  }
 }
