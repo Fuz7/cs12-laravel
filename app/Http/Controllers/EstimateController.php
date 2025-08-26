@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\Estimate;
 use App\Models\Lead;
+use App\Models\Task;
 use App\Models\User;
 use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
@@ -48,8 +49,101 @@ class EstimateController extends Controller
     } else {
       $query->orderBy($sortBy, $sortOrder);
     }
+
     $estimates = $query->paginate($perPage, ['*'], 'page', $page);
 
     return response()->json($estimates);
+  }
+
+  public function store(Request $request, $customerId)
+  {
+    $estimate = DB::transaction(function () use ($request, $customerId) {
+      $validated = $request->validate([
+        'job_name' => 'required|string',
+        'tasks'   => 'required|array',
+        'tasks.*.description' => 'required|string',
+        'tasks.*.price'       => 'required|numeric',
+        'status'   => 'required|string',
+        'notes'    => 'nullable|string',
+      ]);
+
+      $validated['notes'] = $validated['notes'] ?? '';
+
+      $estimate = Estimate::create([
+        'customer_id' => $customerId,
+        'job_name'    => $validated['job_name'],
+        'status'      => $validated['status'],
+        'notes'       => $validated['notes'],
+      ]);
+
+      $estimate->tasks()->createMany($validated['tasks']);
+
+      return $estimate->load('tasks');
+    });
+
+    return response()->json($estimate);
+  }
+
+  public function update(Request $request, $customerId, $estimateId)
+  {
+    $estimate = DB::transaction(function () use ($request, $customerId, $estimateId) {
+      $validated = $request->validate([
+        'job_name' => 'required|string',
+        'status'   => 'required|string',
+        'notes'    => 'nullable|string',
+        // tasks validation
+        'tasks'                 => 'required|array',
+        'tasks.*.id'            => 'sometimes|integer|exists:tasks,id',
+        'tasks.*.description'   => 'required|string|max:255',
+        'tasks.*.price'         => 'required|numeric|min:0',
+
+        'deletedIds'   => 'sometimes|array',
+        'deletedIds.*' => 'integer|exists:tasks,id',
+      ]);
+
+      $estimate = Estimate::where('id', $estimateId)
+        ->where('customer_id', $customerId)
+        ->firstOrFail();
+      $estimate->update([
+        'job_name' => $validated['job_name'],
+        'status'   => $validated['status'],
+        'notes'    => $validated['notes'],
+      ]);
+
+      $newTasks = [];
+      $existingTasks = [];
+
+      foreach ($validated['tasks'] as $taskData) {
+        if (isset($taskData['id'])) {
+          $existingTasks[] = $taskData;
+        } else {
+          $newTasks[] = [
+            'description' => $taskData['description'],
+            'price' => $taskData['price'],
+
+          ];
+        }
+      }
+      if (!empty($newTasks)) {
+        $estimate->tasks()->createMany($newTasks);
+      }
+      foreach ($existingTasks as $taskData) {
+        $task = Task::find($taskData['id']);
+        $task->update([
+          'description' => $taskData['description'],
+          'price' => $taskData['price'],
+        ]);
+      }
+      if (!empty($validated['deletedIds'])) {
+        $estimate->tasks()->whereIn('id', $validated['deletedIds'])->delete();
+        // Doesn't Get Called On Batch Delete
+        $estimate->recalculateTasksTotals();
+      }
+
+
+      return $estimate->load('tasks');
+    });
+
+    return response()->json($estimate);
   }
 }

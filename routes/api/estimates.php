@@ -6,4 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->group(function () {
 
   Route::get('/estimates', [EstimateController::class, 'getPaginatedEstimate']);
+  Route::post('/estimates/{customerId}', [EstimateController::class, 'store']);
+  Route::patch('/estimates/{customerId}/{estimateId}', [EstimateController::class, 'update']);
+
 });

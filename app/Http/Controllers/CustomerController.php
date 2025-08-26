@@ -103,4 +103,9 @@ class CustomerController extends Controller
 
     return response()->json();
   }
+  public function getCustomerIfExist(Request $request, $id)
+  {
+    $customer = Customer::where('id', $id)->first();
+    return response()->json($customer);
+  }
 }
