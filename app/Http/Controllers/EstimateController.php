@@ -101,6 +101,7 @@ class EstimateController extends Controller
         'deletedIds.*' => 'integer|exists:tasks,id',
       ]);
 
+      $validated['notes'] = $validated['notes'] ?? '';
       $estimate = Estimate::where('id', $estimateId)
         ->where('customer_id', $customerId)
         ->firstOrFail();
