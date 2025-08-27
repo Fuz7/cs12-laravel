@@ -11,4 +11,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
   Route::delete('/estimates/{id}', [EstimateController::class, 'delete']);
   Route::delete('/estimates', [EstimateController::class, 'deleteByBatch']);
 
-});
+}); 

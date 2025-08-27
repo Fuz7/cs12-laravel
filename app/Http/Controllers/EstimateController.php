@@ -22,7 +22,7 @@ class EstimateController extends Controller
     $sortOrder = $request->get('sortOrder', 'desc');
     $search = $request->get('searchTerm', "");
     $query = Estimate::with(
-      ['customer:id,first_name,last_name,email'],
+      ['customer:id,first_name,last_name,email,property_address'],
     )->with(['tasks']);
 
 

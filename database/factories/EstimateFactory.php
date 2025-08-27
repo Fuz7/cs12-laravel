@@ -34,6 +34,7 @@ class EstimateFactory extends Factory
             //
             'customer_id' => Customer::inRandomOrder()->first()->id,
             'job_name' => fake()->words(3, true),
+            'site_address' => fake()->streetAddress(),
             'status' => $this->getRandomStatus(),
             'notes' => fake()->sentence(),
         ];
