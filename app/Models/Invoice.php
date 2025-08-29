@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-class Estimate extends Model
+class Invoice extends Model
+
 {
-    use HasFactory;
 
     public function tasks(): MorphMany
     {
@@ -32,10 +30,13 @@ class Estimate extends Model
             'tasks_total_price' => $totals->total ?? 0,
         ]);
     }
+    //
     protected $fillable = [
         'customer_id',
         'job_name',
         'site_address',
+        'due_date',
+        'paid_amount',
         'status',
         'tasks_total_price',
         'notes',

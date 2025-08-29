@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text("site_address");
             $table->text("status");
             $table->text("notes");
-            $table->decimal("paid_amount");
+            $table->decimal("paid_amount",12,2);
             $table->decimal('tasks_total_price', 12, 2)->default(0);
             $table->date("due_date");
             $table->timestamps();

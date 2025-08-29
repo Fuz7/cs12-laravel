@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Estimate;
+use App\Models\Invoice;
+use App\Models\Job;
 use App\Models\Lead;
 use App\Models\Task;
 use App\Models\User;
@@ -61,6 +63,7 @@ class EstimateController extends Controller
       $validated = $request->validate([
         'job_name' => 'required|string',
         'tasks'   => 'required|array',
+        'site_address' => 'nullable|string',
         'tasks.*.description' => 'required|string',
         'tasks.*.price'       => 'required|numeric',
         'status'   => 'required|string',
@@ -68,10 +71,12 @@ class EstimateController extends Controller
       ]);
 
       $validated['notes'] = $validated['notes'] ?? '';
+      $validated['site_address'] = $validated['site_address'] ?? '';
 
       $estimate = Estimate::create([
         'customer_id' => $customerId,
         'job_name'    => $validated['job_name'],
+        'site_address' => $validated['site_address'],
         'status'      => $validated['status'],
         'notes'       => $validated['notes'],
       ]);
@@ -91,6 +96,7 @@ class EstimateController extends Controller
         'job_name' => 'required|string',
         'status'   => 'required|string',
         'notes'    => 'nullable|string',
+        'site_address' => 'nullable|string',
         // tasks validation
         'tasks'                 => 'required|array',
         'tasks.*.id'            => 'sometimes|integer|exists:tasks,id',
@@ -102,11 +108,14 @@ class EstimateController extends Controller
       ]);
 
       $validated['notes'] = $validated['notes'] ?? '';
+      $validated['site_address'] = $validated['site_address'] ?? '';
+
       $estimate = Estimate::where('id', $estimateId)
         ->where('customer_id', $customerId)
         ->firstOrFail();
       $estimate->update([
         'job_name' => $validated['job_name'],
+        'site_address' => $validated['site_address'],
         'status'   => $validated['status'],
         'notes'    => $validated['notes'],
       ]);
@@ -171,5 +180,52 @@ class EstimateController extends Controller
     Estimate::whereIn('id', $ids)->delete();
 
     return response()->json();
+  }
+  public function approveEstimate(Request $request, $estimateId)
+  {
+
+    $validated = $request->validate([
+      'due_date' => 'required|date',
+    ]);
+    return DB::transaction(function () use ($validated,  $estimateId) {
+      // Get estimate
+      $estimate = Estimate::findOrFail($estimateId);
+
+      // Update estimate status
+      $estimate->update([
+        'status' => 'approved',
+      ]);
+
+      // Create related Job
+      Job::create([
+        'customer_id' => $estimate->customer_id,
+        'job_name'    => $estimate->job_name,
+        'site_address' => $estimate->site_address,
+        'due_date'    => $validated['due_date'],
+        'status'      => 'pending',
+        'notes'       => "",
+      ]);
+
+      // Create related Invoice
+      $invoice = Invoice::create([
+        'customer_id'       => $estimate->customer_id,
+        'job_name'          => $estimate->job_name,
+        'site_address'      => $estimate->site_address,
+        'paid_amount'       => 0,
+        'due_date'          => $validated['due_date'],
+        'status'            => 'draft',
+        'tasks_total_price' => $estimate->tasks_total_price,
+        'notes'             => 'Invoice for Estimate #' . $estimate->id,
+      ]);
+      foreach ($estimate->tasks as $task) {
+        $invoice->tasks()->create([
+          'description' => $task->description,
+          'price'       => $task->price,
+        ]);
+      }
+      return response()->json([
+        'message' => 'Estimate approved successfully',
+      ]);
+    });
   }
 }
