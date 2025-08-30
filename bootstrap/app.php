@@ -6,15 +6,16 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
+        web: __DIR__ . '/../routes/web.php',
         api: [
-            __DIR__.'/../routes/api/index.php',
-            __DIR__.'/../routes/api/customers.php',
-            __DIR__.'/../routes/api/leads.php',
-            __DIR__.'/../routes/api/estimates.php',
-            __DIR__.'/../routes/api/invoices.php',
-    ],
-        commands: __DIR__.'/../routes/console.php',
+            __DIR__ . '/../routes/api/index.php',
+            __DIR__ . '/../routes/api/customers.php',
+            __DIR__ . '/../routes/api/leads.php',
+            __DIR__ . '/../routes/api/estimates.php',
+            __DIR__ . '/../routes/api/jobs.php',
+            __DIR__ . '/../routes/api/invoices.php',
+        ],
+        commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {

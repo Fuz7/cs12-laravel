@@ -6,10 +6,7 @@ use App\Models\Customer;
 use App\Models\Estimate;
 use App\Models\Invoice;
 use App\Models\Job;
-use App\Models\Lead;
 use App\Models\Task;
-use App\Models\User;
-use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -215,7 +212,7 @@ class EstimateController extends Controller
         'due_date'          => $validated['due_date'],
         'status'            => 'draft',
         'tasks_total_price' => $estimate->tasks_total_price,
-        'notes'             => 'Invoice for Estimate #' . $estimate->id,
+        'notes'             => $estimate->notes,
       ]);
       foreach ($estimate->tasks as $task) {
         $invoice->tasks()->create([
