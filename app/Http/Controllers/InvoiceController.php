@@ -68,4 +68,40 @@ class InvoiceController extends Controller
     });
     return response()->json($invoices);
   }
+
+  public function store(Request $request, $customerId)
+  {
+    $invoice = DB::transaction(function () use ($request, $customerId) {
+      $validated = $request->validate([
+        'job_name' => 'required|string',
+        'tasks'   => 'required|array',
+        'site_address' => 'nullable|string',
+        "paid_amount" => 'required|numeric',
+        "due_date" => "required|date",
+        'tasks.*.description' => 'required|string',
+        'tasks.*.price'       => 'required|numeric',
+        'status'   => 'required|string',
+        'notes'    => 'nullable|string',
+      ]);
+
+      $validated['notes'] = $validated['notes'] ?? '';
+      $validated['site_address'] = $validated['site_address'] ?? '';
+
+      $invoice = Invoice::create([
+        'customer_id' => $customerId,
+        'job_name'    => $validated['job_name'],
+        'site_address' => $validated['site_address'],
+        'due_date' => $validated['due_date'],
+        'paid_amount' => $validated['paid_amount'],
+        'status'      => $validated['status'],
+        'notes'       => $validated['notes'],
+      ]);
+
+      $invoice->tasks()->createMany($validated['tasks']);
+
+      return $invoice->load('tasks');
+    });
+
+    return response()->json($invoice);
+  }
 }
