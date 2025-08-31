@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->group(function () {
 
   Route::get('/estimates', [EstimateController::class, 'getPaginatedEstimate']);
+  Route::get('/estimates/{customerId}', [EstimateController::class, 'getEstimatesById']);
   Route::post('/estimates/{customerId}', [EstimateController::class, 'store']);
   Route::patch('/estimates/{estimateId}/approve', [EstimateController::class, 'approveEstimate']);
   // Make Sure path var are lower down to not match

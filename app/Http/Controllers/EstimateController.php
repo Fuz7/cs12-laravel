@@ -153,6 +153,20 @@ class EstimateController extends Controller
 
     return response()->json($estimate);
   }
+
+  public function getEstimatesById(Request $request, $customerId)
+  {
+    $estimates = Estimate::where('customer_id', $customerId)
+      ->with(
+        ['customer:id,first_name,last_name,email,property_address'],
+      )
+      ->with(['tasks'])
+      ->get();
+
+
+    return response()->json($estimates);
+  }
+
   public function delete(Request $request, $id)
   {
     $estimate = Estimate::findOrFail($id);

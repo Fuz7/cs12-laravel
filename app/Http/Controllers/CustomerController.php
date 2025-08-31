@@ -73,6 +73,10 @@ class CustomerController extends Controller
       'lead_source'  => 'sometimes|string|nullable',
     ]);
 
+    foreach (['email', 'company_name', 'phone', 'address', 'lead_source'] as $field) {
+      $validated[$field] = $validated[$field] ?? '';
+    }
+
     $customer->update($validated);
 
     return response()->json($customer);

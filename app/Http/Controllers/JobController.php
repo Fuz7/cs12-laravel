@@ -45,6 +45,18 @@ class JobController extends Controller
 
     return response()->json($estimates);
   }
+  public function getJobsById(Request $request, $customerId)
+  {
+    $jobs = Job::where('customer_id', $customerId)
+      ->with(
+        ['customer:id,first_name,last_name,email,property_address'],
+      )
+      ->get();
+
+
+    return response()->json($jobs);
+  }
+
   public function store(Request $request, $customerId)
   {
     $validated = $request->validate([

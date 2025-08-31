@@ -69,6 +69,20 @@ class InvoiceController extends Controller
     return response()->json($invoices);
   }
 
+
+  public function getInvoicesById(Request $request, $customerId)
+  {
+    $invoices = Invoice::where('customer_id', $customerId)
+      ->with(
+        ['customer:id,first_name,last_name,email,property_address'],
+      )
+      ->with(['tasks'])
+      ->get();
+
+
+    return response()->json($invoices);
+  }
+
   public function store(Request $request, $customerId)
   {
     $invoice = DB::transaction(function () use ($request, $customerId) {

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->group(function () {
 
   Route::get('/jobs', [JobController::class, 'getPaginatedJob']);
+  Route::get('/jobs/{customerId}', [JobController::class, 'getJobsById']);
   Route::post('/jobs/{customerId}', [JobController::class, 'store']);
   Route::patch('/jobs/{estimateId}', [JobController::class, 'update']);
   Route::delete('/jobs/{id}', [JobController::class, 'delete']);
