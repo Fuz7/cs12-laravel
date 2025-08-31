@@ -104,4 +104,102 @@ class InvoiceController extends Controller
 
     return response()->json($invoice);
   }
+
+  public function update(Request $request, $invoiceId)
+  {
+    $invoice = DB::transaction(function () use ($request, $invoiceId) {
+      $validated = $request->validate([
+        'job_name' => 'required|string',
+        'status'   => 'required|string',
+        'due_date' => "required|date",
+        'paid_amount' => 'required|numeric',
+        'notes'    => 'nullable|string',
+        'site_address' => 'nullable|string',
+        // tasks validation
+        'tasks'                 => 'required|array',
+        'tasks.*.id'            => 'sometimes|integer|exists:tasks,id',
+        'tasks.*.description'   => 'required|string|max:255',
+        'tasks.*.price'         => 'required|numeric|min:0',
+
+        'deletedIds'   => 'sometimes|array',
+        'deletedIds.*' => 'integer|exists:tasks,id',
+      ]);
+
+      $validated['notes'] = $validated['notes'] ?? '';
+      $validated['site_address'] = $validated['site_address'] ?? '';
+
+      $invoice = Invoice::where('id', $invoiceId)
+        ->firstOrFail();
+      $invoice->update([
+        'job_name' => $validated['job_name'],
+        'site_address' => $validated['site_address'],
+        'due_date' => $validated['due_date'],
+        'paid_amount' => $validated['paid_amount'],
+        'status'   => $validated['status'],
+        'notes'    => $validated['notes'],
+      ]);
+
+      $newTasks = [];
+      $existingTasks = [];
+
+      foreach ($validated['tasks'] as $taskData) {
+        if (isset($taskData['id'])) {
+          $existingTasks[] = $taskData;
+        } else {
+          $newTasks[] = [
+            'description' => $taskData['description'],
+            'price' => $taskData['price'],
+
+          ];
+        }
+      }
+      if (!empty($newTasks)) {
+        $invoice->tasks()->createMany($newTasks);
+      }
+      foreach ($existingTasks as $taskData) {
+        $task = Task::find($taskData['id']);
+        $task->update([
+          'description' => $taskData['description'],
+          'price' => $taskData['price'],
+        ]);
+      }
+      if (!empty($validated['deletedIds'])) {
+        $invoice->tasks()->whereIn('id', $validated['deletedIds'])->delete();
+        // Doesn't Get Called On Batch Delete
+        $invoice->recalculateTasksTotals();
+      }
+
+
+      return $invoice->load('tasks');
+    });
+
+    return response()->json($invoice);
+  }
+
+  public function delete(Request $request, $id)
+  {
+    $estimate = Invoice::findOrFail($id);
+
+
+
+    $estimate->delete();
+
+    return response()->json();
+  }
+
+  public function deleteByBatch(Request $request,)
+  {
+    $ids = $request->input('ids', []); // expects: [1,2,3,...]
+
+    if (empty($ids)) {
+      return response()->json([
+        'status' => 'error',
+        'message' => 'No IDs provided'
+      ], 400);
+    }
+
+    Invoice::whereIn('id', $ids)->delete();
+
+    return response()->json();
+  }
 }
