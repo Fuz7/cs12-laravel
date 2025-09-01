@@ -7,6 +7,7 @@ use App\Models\Estimate;
 use App\Models\Invoice;
 use App\Models\Job;
 use App\Models\Task;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -205,6 +206,7 @@ class EstimateController extends Controller
       // Update estimate status
       $estimate->update([
         'status' => 'approved',
+        "approved_at" => (Carbon::now()->toDateString()),
       ]);
 
       // Create related Job

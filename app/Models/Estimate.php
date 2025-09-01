@@ -35,6 +35,7 @@ class Estimate extends Model
     protected $fillable = [
         'customer_id',
         'job_name',
+        'approved_at',
         'site_address',
         'status',
         'tasks_total_price',
