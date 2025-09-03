@@ -49,11 +49,11 @@ class LeadFactory extends Factory
     public function definition(): array
     {
         if (! static::$time) {
-            static::$time = Carbon::now()->subDays(10);
+            static::$time = Carbon::now()->subDays(100);
         }
 
         $time = static::$time->copy();
-        static::$time->addMinutes(10); // increment
+        static::$time->subDays(1); // increment
         return [
             //
             'first_name' => fake()->firstName(),

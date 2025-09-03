@@ -15,7 +15,7 @@ class LeadSeeder extends Seeder
     {
         //
         Lead::factory()
-            ->count(120)
+            ->count(200)
             ->create();
     }
 }

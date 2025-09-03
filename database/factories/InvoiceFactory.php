@@ -35,21 +35,22 @@ class InvoiceFactory extends Factory
     {
 
         if (! static::$time) {
-            static::$time = Carbon::now()->subDays(10);
+            static::$time = Carbon::now()->subDays(200);
         }
 
         $time = static::$time->copy();
-        static::$time->addDays(1); // increment
+        static::$time->subDays(1); // increment
         return [
             //
             'customer_id' => Customer::inRandomOrder()->first()->id,
             'job_name' => fake()->words(3, true),
             "due_date" => $time,
-            'paid_amount' => fake()->numberBetween(21, 200),
+            'paid_amount' => fake()->randomFloat(2, 100, 10000),
 
             'site_address' => fake()->streetAddress(),
             'status' => $this->getRandomStatus(),
             'notes' => fake()->sentence(),
+            'created_at' => $time->subDays(4)
         ];
     }
     public function withTasks($count = 3)

@@ -7,6 +7,7 @@ use App\Models\Estimate;
 use App\Models\Invoice;
 use App\Models\Job;
 use App\Models\Task;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -215,5 +216,37 @@ class InvoiceController extends Controller
     Invoice::whereIn('id', $ids)->delete();
 
     return response()->json();
+  }
+
+  public function getLastMonthRevenue(Request $request)
+  {
+
+    // Last month range
+    $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
+    $lastMonthEnd   = Carbon::now()->subMonth()->endOfMonth();
+
+    // Last month revenue
+    $lastMonthRevenue = Invoice::whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
+      ->sum('paid_amount');
+
+    // Range: 12 months BEFORE last month
+    $yearStart = $lastMonthStart->copy()->subMonths(12)->startOfMonth();
+    $yearEnd   = $lastMonthStart->copy()->subDay(); // the day before last month starts
+
+    $totalRevenueLastYear = Invoice::whereBetween('created_at', [$yearStart, $yearEnd])
+      ->sum('paid_amount');
+
+    // Average (12 months)
+    $averageMonthlyRevenue = $totalRevenueLastYear / 12;
+
+    // Compare last month vs average
+    $percentageDifference = $averageMonthlyRevenue > 0
+      ? (($lastMonthRevenue - $averageMonthlyRevenue) / $averageMonthlyRevenue) * 100
+      : 0;
+
+    return [
+      'last_month' => $lastMonthRevenue,
+      'percentage_difference' => round($percentageDifference, 1),
+    ];
   }
 }

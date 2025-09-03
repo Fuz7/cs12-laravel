@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\Lead;
 use App\Models\User;
+use Carbon\Carbon;
 use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
 
@@ -136,5 +137,82 @@ class LeadController extends Controller
     return response()->json([
       'message' => 'Lead converted successfully',
     ]);
+  }
+
+  public function getNewLeads(Request $request)
+  {
+    $startOfLastMonth = Carbon::now()->subMonth()->startOfMonth();
+    $endOfLastMonth   = Carbon::now()->subMonth()->endOfMonth();
+    $startOfPeriod = Carbon::now()->subMonths(13)->startOfMonth();
+    $endOfPeriod   = $startOfLastMonth->copy()->subDay(); // up to the month before last month
+
+    // Leads created last month
+    $lastMonthLeads = Lead::whereBetween('created_at', [$startOfLastMonth, $endOfLastMonth])
+      ->count();
+
+    $leadsPerMonth = Lead::whereBetween('created_at', [$startOfPeriod, $endOfPeriod])
+      ->selectRaw('DATE_TRUNC(\'month\', created_at) as month, COUNT(*) as total')
+      ->groupBy('month')
+      ->pluck('total');
+
+    $averagePrev12Months = $leadsPerMonth->avg();
+    $growthRate = null;
+    if ($averagePrev12Months > 0) {
+      $growthRate = (($lastMonthLeads - $averagePrev12Months) / $averagePrev12Months) * 100;
+    }
+
+    return [
+      'last_month_leads' => $lastMonthLeads,
+      'growth_rate_percent'  => round($growthRate, 2),
+    ];
+  }
+  function getConvertionRate()
+  {
+    $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
+    $lastMonthEnd   = Carbon::now()->subMonth()->endOfMonth();
+
+    $totalLastMonth = Lead::whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])->count();
+    $convertedLastMonth = Lead::whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
+      ->where('status', 'converted')
+      ->count();
+
+    $lastMonthConversion = $totalLastMonth > 0
+      ? ($convertedLastMonth / $totalLastMonth) * 100
+      : 0;
+
+    $yearStart = Carbon::now()->subYear()->startOfMonth();
+    $lastMonthStart = Carbon::now()->subMonth()->startOfMonth();
+
+    $monthlyStats = Lead::selectRaw("
+        DATE_TRUNC('month', created_at) as month,
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'converted' THEN 1 ELSE 0 END) as converted
+    ")
+      ->whereBetween('created_at', [$yearStart, $lastMonthStart->subDay()])
+      ->groupBy('month')
+      ->orderBy('month')
+      ->get();
+
+    $monthCount = $monthlyStats->count();
+
+    $unweightedAvg = $monthCount > 0
+      ? $monthlyStats->map(function ($row) {
+        return $row->total > 0 ? ($row->converted / $row->total) * 100 : 0;
+      })->avg()
+      : 0;
+
+    $weightedAvg = $monthlyStats->sum('total') > 0
+      ? ($monthlyStats->sum('converted') / $monthlyStats->sum('total')) * 100
+      : 0;
+
+
+    $growthRatePercent = $weightedAvg > 0
+      ? (($lastMonthConversion - $weightedAvg) / $weightedAvg) * 100
+      : 0;
+
+    return [
+      'last_month_conversion_rate'   => round($lastMonthConversion, 2),
+      'growth_rate_percent'          => round($growthRatePercent, 2),
+    ];
   }
 }

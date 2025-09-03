@@ -37,11 +37,11 @@ class CustomerFactory extends Factory
     public function definition(): array
     {
         if (! static::$time) {
-            static::$time = Carbon::now()->subDays(10);
+            static::$time = Carbon::now()->subDays(120);
         }
 
         $time = static::$time->copy();
-        static::$time->addMinutes(10); // increment
+        static::$time->subDays(1); // increment
         return [
             //
             'first_name' => fake()->firstName(),
@@ -52,8 +52,8 @@ class CustomerFactory extends Factory
             'billing_address' => fake()->streetAddress(),
             'property_address' => fake()->streetAddress(),
             'lead_source' => $this->getRandomLeadSource(),
-            'updated_at'=>$time,
-            'created_at'=>$time,
+            'updated_at' => $time,
+            'created_at' => $time,
         ];
     }
 }

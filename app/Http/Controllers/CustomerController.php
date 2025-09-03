@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
@@ -112,4 +113,35 @@ class CustomerController extends Controller
     $customer = Customer::where('id', $id)->first();
     return response()->json($customer);
   }
+
+  public function getNewCustomers(Request $request)
+  {
+    $startOfLastMonth = Carbon::now()->subMonth()->startOfMonth();
+    $endOfLastMonth   = Carbon::now()->subMonth()->endOfMonth();
+    $startOfPeriod = Carbon::now()->subMonths(13)->startOfMonth();
+    $endOfPeriod   = $startOfLastMonth->copy()->subDay(); // up to the month before last month
+
+    // Customers created last month
+    $lastMonthCustomers = Customer::whereBetween('created_at', [$startOfLastMonth, $endOfLastMonth])
+      ->count();
+
+    $customersPerMonth = Customer::whereBetween('created_at', [$startOfPeriod, $endOfPeriod])
+      ->selectRaw('DATE_TRUNC(\'month\', created_at) as month, COUNT(*) as total')
+      ->groupBy('month')
+      ->pluck('total');
+
+    $averagePrev12Months = $customersPerMonth->avg();
+    $growthRate = null;
+    if ($averagePrev12Months > 0) {
+      $growthRate = (($lastMonthCustomers - $averagePrev12Months) / $averagePrev12Months) * 100;
+    }
+
+    return [
+      'last_month_customers' => $lastMonthCustomers,
+      'growth_rate_percent'  => round($growthRate, 2),
+    ];
+  }
+
+  
+
 }
