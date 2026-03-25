@@ -32,7 +32,7 @@ class JobFactory extends Factory
     public function definition(): array
     {
         if (! static::$time) {
-            static::$time = Carbon::now()->subDays(10);
+            static::$time = Carbon::now()->subDays(120);
         }
 
         $time = static::$time->copy();

@@ -1,0 +1,38 @@
+
+services:
+  frontend:
+    build:
+      context: ../cs12-nextjs 
+      dockerfile: docker/nextjs/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../cs12-nextjs:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+  backend:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: cs12_laravel
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+volumes:
+  postgres_data:

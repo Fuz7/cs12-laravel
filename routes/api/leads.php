@@ -10,6 +10,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
   Route::get('/leads', [LeadController::class, 'getPaginatedLead']);
   Route::get("/leads/analytics/getNewLeads", [LeadController::class, 'getNewLeads']);
   Route::get("/leads/analytics/getConvertionRate", [LeadController::class, 'getConvertionRate']);
+    Route::get("/leads/analytics/getChartLeadGeneration", [LeadController::class, 'getChartLeadGeneration']);
+
   Route::post('/leads', [LeadController::class, 'store']);
   Route::patch('/leads/{id}', [LeadController::class, 'update']);
   Route::patch('/leads/{id}/convert', [LeadController::class, 'convertToCustomer']);

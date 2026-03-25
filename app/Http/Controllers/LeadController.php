@@ -215,4 +215,33 @@ class LeadController extends Controller
       'growth_rate_percent'          => round($growthRatePercent, 2),
     ];
   }
+
+  function getChartLeadGeneration()
+  {
+    $startDate = Carbon::now()->subMonths(3)->startOfDay();
+
+$rawStats = Lead::selectRaw("
+        DATE(created_at) as day,
+        source,
+        COUNT(*) as count
+    ")
+    ->where('created_at', '>=', $startDate)
+    ->groupBy('day', 'source')
+    ->orderBy('day')
+    ->get();
+
+// Transform into day-based dictionary with sources nested
+$leadStats = $rawStats
+    ->groupBy('day')
+    ->map(function ($rows, $day) {
+        return [
+            'day'     => $day,
+            'sources' => $rows->mapWithKeys(function ($row) {
+                return [$row->source ?? 'Unknown' => (int) $row->count];
+            }),
+        ];
+    })
+    ->values();
+    return $leadStats;
+  }
 }
