@@ -40,13 +40,14 @@ class CustomerController extends Controller
     $validated = $request->validate([
       'first_name' => 'required|string',
       'last_name' => 'required|string',
-      'email' => 'nullable|email',
+      'property_address' => 'required|string',
+      'email' => 'required|email',
       'company_name' => 'nullable|string',
       'phone' => 'nullable|string',
-      'address' => 'nullable|string',
+      'billing_address' => 'nullable|string',
       'lead_source' => 'nullable|string',
     ]);
-    foreach (['email', 'company_name', 'phone', 'address', 'lead_source'] as $field) {
+    foreach (['email', 'company_name', 'phone', 'billing_address', 'lead_source'] as $field) {
       $validated[$field] = $validated[$field] ?? '';
     }
     $customer = Customer::create($validated);
