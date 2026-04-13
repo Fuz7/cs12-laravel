@@ -8,6 +8,9 @@ use App\Models\User;
 use Carbon\Carbon;
 use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+use function Illuminate\Log\log;
 
 class LeadController extends Controller
 {

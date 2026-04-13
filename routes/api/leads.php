@@ -5,7 +5,7 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum',])->group(function () {
 
   Route::get('/leads', [LeadController::class, 'getPaginatedLead']);
   Route::get("/leads/analytics/getNewLeads", [LeadController::class, 'getNewLeads']);

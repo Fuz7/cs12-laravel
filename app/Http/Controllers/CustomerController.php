@@ -41,7 +41,7 @@ class CustomerController extends Controller
       'first_name' => 'required|string',
       'last_name' => 'required|string',
       'property_address' => 'required|string',
-      'email' => 'required|email',
+      'email' => 'requiredcd ..|email',
       'company_name' => 'nullable|string',
       'phone' => 'nullable|string',
       'billing_address' => 'nullable|string',
