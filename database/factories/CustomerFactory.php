@@ -41,7 +41,7 @@ class CustomerFactory extends Factory
         }
 
         $time = static::$time->copy();
-        static::$time->subDays(1); // increment
+        static::$time->addDays(1); // increment
         return [
             //
             'first_name' => fake()->firstName(),

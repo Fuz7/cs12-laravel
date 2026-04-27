@@ -20,7 +20,6 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'email' => 'jayralddionaldo@gmail.com',
             'password' => bcrypt("Jayralddionaldo"),
-            'is_authorized' => true,
         ]);
     }
 }

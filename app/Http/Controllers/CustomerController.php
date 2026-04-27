@@ -18,16 +18,22 @@ class CustomerController extends Controller
     $query = Customer::query();   // default sort order{
 
 
-    if ($search) {
-      $query->where(function ($q) use ($search) {
-        $q->where('id', 'like', "%{$search}%")
-          ->orWhere('first_name', 'like', "%{$search}%")
-          ->orWhere('last_name', 'like', "%{$search}%")
-          ->orWhere('company_name', 'like', "%{$search}%")
-          ->orWhere('phone', 'like', "%{$search}%")
-          ->orWhere('email', 'like', "%{$search}%");
-      });
-    }
+   if ($search) {
+    $query->where(function ($q) use ($search) {
+        $q->where('id', 'ilike', "%{$search}%")
+          ->orWhere('first_name', 'ilike', "%{$search}%")
+          ->orWhere('last_name', 'ilike', "%{$search}%")
+          ->orWhere('company_name', 'ilike', "%{$search}%")
+          ->orWhere('phone', 'ilike', "%{$search}%")
+          ->orWhere('email', 'ilike', "%{$search}%")
+
+          // 🔥 search linked user
+          ->orWhereHas('user', function ($q2) use ($search) {
+              $q2->where('name', 'ilike', "%{$search}%")
+                 ->orWhere('email', 'ilike', "%{$search}%");
+          });
+    });
+}
 
     $query->orderBy($sortBy, $sortOrder);
     $customers = $query->paginate($perPage, ['*'], 'page', $page);
@@ -41,7 +47,7 @@ class CustomerController extends Controller
       'first_name' => 'required|string',
       'last_name' => 'required|string',
       'property_address' => 'required|string',
-      'email' => 'requiredcd ..|email',
+      'email' => 'required|email',
       'company_name' => 'nullable|string',
       'phone' => 'nullable|string',
       'billing_address' => 'nullable|string',
@@ -143,6 +149,12 @@ class CustomerController extends Controller
     ];
   }
 
-  
+  public function getUnlinkedCustomer()
+{
+    $customers = Customer::whereNull('user_id')->get();
+
+    return response()->json($customers);
+}
+
 
 }

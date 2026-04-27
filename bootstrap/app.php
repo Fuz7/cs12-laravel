@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
             __DIR__ . '/../routes/api/estimates.php',
             __DIR__ . '/../routes/api/jobs.php',
             __DIR__ . '/../routes/api/invoices.php',
+            __DIR__ . '/../routes/api/users.php',
         ],
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',

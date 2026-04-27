@@ -26,12 +26,12 @@ class LeadController extends Controller
 
     if ($search) {
       $query->where(function ($q) use ($search) {
-        $q->where('id', 'like', "%{$search}%")
-          ->orWhere('first_name', 'like', "%{$search}%")
-          ->orWhere('last_name', 'like', "%{$search}%")
-          ->orWhere('status', 'like', "%{$search}%")
-          ->orWhere('phone', 'like', "%{$search}%")
-          ->orWhere('email', 'like', "%{$search}%");
+        $q->where('id', 'ilike', "%{$search}%")
+          ->orWhere('first_name', 'ilike', "%{$search}%")
+          ->orWhere('last_name', 'ilike', "%{$search}%")
+          ->orWhere('status', 'ilike', "%{$search}%")
+          ->orWhere('phone', 'ilike', "%{$search}%")
+          ->orWhere('email', 'ilike', "%{$search}%");
       });
     }
 

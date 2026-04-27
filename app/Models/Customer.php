@@ -30,4 +30,8 @@ class Customer extends Model
         'property_address',
         'lead_source',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

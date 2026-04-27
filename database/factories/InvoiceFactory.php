@@ -34,12 +34,12 @@ class InvoiceFactory extends Factory
     public function definition(): array
     {
 
-        if (! static::$time) {
+        if (!static::$time) {
             static::$time = Carbon::now()->subDays(200);
         }
 
         $time = static::$time->copy();
-        static::$time->subDays(1); // increment
+        static::$time->addDays(2); // increment
         return [
             //
             'customer_id' => Customer::inRandomOrder()->first()->id,

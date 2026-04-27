@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')
+            ->nullable()
+            ->unique()   // 🔥 THIS enforces one-to-one
+            ->constrained()
+            ->nullOnDelete();
             $table->text("first_name");
             $table->text("last_name");
             $table->text("company_name");
@@ -32,4 +37,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('customers');
     }
+
+    
 };
