@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
-  Route::get('/customers', [CustomerController::class, 'getPaginatedCustomer']);
+  Route::get('/customers', [CustomerController::class, 'getPaginatedCustomers']);
+  Route::get('/customers/all', [CustomerController::class, 'getCustomers']);
+
   Route::get("/customers/analytics/getNewCustomers", [CustomerController::class, 'getNewCustomers']);
   Route::get('/customers/{id}', [CustomerController::class, 'getCustomerById']);
   Route::get('/customers/{id}/search', [CustomerController::class, 'getCustomerIfExist']);

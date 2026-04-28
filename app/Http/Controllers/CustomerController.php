@@ -149,12 +149,17 @@ class CustomerController extends Controller
     ];
   }
 
-  public function getUnlinkedCustomer()
+  public function getUnlinkedCustomers()
 {
     $customers = Customer::whereNull('user_id')->get();
 
     return response()->json($customers);
 }
 
+ public function getCustomers()
+{
+    $customers = Customer::get();
 
+    return response()->json($customers);
+}
 }
