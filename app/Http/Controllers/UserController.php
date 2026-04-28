@@ -85,4 +85,31 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Unlinked']);
 }
+  public function delete(Request $request, $id)
+  {
+    $user = User::findOrFail($id);
+
+
+
+    $user->delete();
+
+    return response()->json();
+  }
+    public function deleteByBatch(Request $request,)
+  {
+    $ids = $request->input('ids', []); // expects: [1,2,3,...]
+
+    if (empty($ids)) {
+      return response()->json([
+        'status' => 'error',
+        'message' => 'No IDs provided'
+      ], 400);
+    }
+
+    User::whereIn('id', $ids)->delete();
+
+    return response()->json();
+  }
+
+
 }
