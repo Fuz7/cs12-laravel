@@ -221,7 +221,7 @@ class LeadController extends Controller
 
   function getChartLeadGeneration()
   {
-    $startDate = Carbon::now()->subMonths(3)->startOfDay();
+    $startDate = Carbon::now()->subYear(1)->subMonths(1)->startOfDay();
 
 $rawStats = Lead::selectRaw("
         DATE(created_at) as day,

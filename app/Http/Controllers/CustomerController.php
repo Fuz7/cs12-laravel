@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
-  public function getPaginatedCustomer(Request $request)
+  public function getPaginatedCustomers(Request $request)
   {
     $page = $request->get('page', 1);
     $perPage = $request->get('perPage', 10);

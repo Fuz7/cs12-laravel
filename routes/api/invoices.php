@@ -13,4 +13,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
   // Make Sure path var are lower down to not match
   Route::delete('/invoices/{id}', [InvoiceController::class, 'delete']);
   Route::delete('/invoices', [InvoiceController::class, 'deleteByBatch']);
+  Route::get("/invoices/analytics/getChartInvoiceRevenue", [InvoiceController::class, 'getChartInvoiceRevenue']);
+
 });

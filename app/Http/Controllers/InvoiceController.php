@@ -249,4 +249,29 @@ class InvoiceController extends Controller
       'percentage_difference' => round($percentageDifference, 1),
     ];
   }
+  
+  function getChartInvoiceRevenue()
+  {
+      $startDate = Carbon::now()->subMonths(3)->startOfDay();
+  
+      $rawStats = Invoice::selectRaw("
+              DATE(created_at) as day,
+              SUM(paid_amount) as total
+          ")
+          ->where('created_at', '>=', $startDate)
+          ->groupBy('day')
+          ->orderBy('day')
+          ->get();
+  
+      // Transform into same structure (without sources)
+      $invoiceStats = $rawStats->map(function ($row) {
+          return [
+              'day' => $row->day,
+              'total_paid' => (float) $row->total,
+          ];
+      });
+  
+      return $invoiceStats;
+  }
 }
+
