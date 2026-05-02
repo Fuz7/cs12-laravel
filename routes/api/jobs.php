@@ -7,6 +7,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
   Route::get('/jobs', [JobController::class, 'getPaginatedJob']);
   Route::get('/jobs/{customerId}', [JobController::class, 'getJobsById']);
+  Route::get('/jobs/user/{userId}', [JobController::class, 'getActiveJobsByUserId']);
   Route::post('/jobs/{customerId}', [JobController::class, 'store']);
   Route::patch('/jobs/{jobId}', [JobController::class, 'update']);
   Route::delete('/jobs/{id}', [JobController::class, 'delete']);

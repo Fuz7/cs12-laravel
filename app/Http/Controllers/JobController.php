@@ -131,4 +131,16 @@ class JobController extends Controller
 
     return response()->json();
   }
+
+  public function getActiveJobsByUserId($userId)
+{
+    $jobs = Job::whereHas('customer', function ($q) use ($userId) {
+        $q->where('user_id', $userId);
+    })
+    ->whereIn('status', ['pending', 'in_progress'])
+    ->orderBy('created_at', 'desc')
+    ->get();
+
+    return response()->json($jobs);
+}
 }

@@ -273,5 +273,20 @@ class InvoiceController extends Controller
   
       return $invoiceStats;
   }
+
+ public function getInvoicesByUserId($userId)
+{
+    $invoices = Invoice::whereHas('customer', function ($q) use ($userId) {
+        $q->where('user_id', $userId);
+    })
+    ->with([
+        'customer:id,first_name,last_name,email',
+        'tasks'
+    ])
+    ->orderBy('created_at', 'desc')
+    ->get();
+
+    return response()->json($invoices);
+}
 }
 

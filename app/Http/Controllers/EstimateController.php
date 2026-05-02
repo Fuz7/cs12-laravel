@@ -162,11 +162,27 @@ class EstimateController extends Controller
         ['customer:id,first_name,last_name,email,property_address'],
       )
       ->with(['tasks'])
+      ->orderBy('created_at','desc')
       ->get();
 
 
     return response()->json($estimates);
   }
+
+  public function getEstimatesByUserId(Request $request, $userId)
+{
+    $estimates = Estimate::whereHas('customer', function ($q) use ($userId) {
+        $q->where('user_id', $userId);
+    })
+    ->with([
+        'customer:id,first_name,last_name,email,property_address',
+        'tasks'
+    ])
+    ->orderBy('created_at', 'desc')
+    ->get();
+
+    return response()->json($estimates);
+}
 
   public function delete(Request $request, $id)
   {
@@ -241,4 +257,30 @@ class EstimateController extends Controller
       ]);
     });
   }
+public function rejectEstimate($estimateId)
+{
+    return DB::transaction(function () use ($estimateId) {
+
+        // 🔍 Get estimate
+        $estimate = Estimate::findOrFail($estimateId);
+
+        // 🚫 Prevent rejecting already approved (optional but recommended)
+        if ($estimate->status === 'approved') {
+            return response()->json([
+                'message' => 'Cannot reject an already approved estimate'
+            ], 400);
+        }
+
+        // ❌ Update status to rejected
+        $estimate->update([
+            'status' => 'rejected',
+            'rejected_at' => now(), // 🔥 optional field (add in DB if needed)
+        ]);
+
+        return response()->json([
+            'message' => 'Estimate rejected successfully',
+        ]);
+    });
+}
+  
 }
