@@ -5,6 +5,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return ['Laravel' => app()->version()];
-})->middleware('role:user');
+})->middleware('role:user   ');
 
 require __DIR__.'/auth.php';

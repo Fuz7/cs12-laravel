@@ -13,7 +13,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
   Route::get("/customers/analytics/getNewCustomers", [CustomerController::class, 'getNewCustomers']);
   Route::get('/customers/{id}', [CustomerController::class, 'getCustomerById']);
   Route::get('/customers/{id}/search', [CustomerController::class, 'getCustomerIfExist']);
-  Route::get('/customers/filter/unlink', [CustomerController::class, 'getUnlinkedCustomer']);
+  Route::get('/customers/filter/unlink', [CustomerController::class, 'getUnlinkedCustomers']);
   Route::post('/customers', [CustomerController::class, 'store']);
   Route::patch('/customers/{id}', [CustomerController::class, 'update']);
   Route::delete('/customers/{id}', [CustomerController::class, 'delete']);
