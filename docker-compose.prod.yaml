@@ -15,16 +15,21 @@ services:
     build:
       context: ../cs12-nextjs
       dockerfile: docker/nextjs/prod/Dockerfile
+      args:
+        NEXT_PUBLIC_BACKEND_URL: http://agsoy-elementary-school.southeastasia.cloudapp.azure.com
+        NEXT_PUBLIC_DOCKER_BACKEND_URL: http://nginx
     expose:
       - "3000"
     environment:
       NODE_ENV: production
+      FRONTEND_URL: http://agsoy-elementary-school.southeastasia.cloudapp.azure.com  # ← add this
+      INTERNAL_BACKEND_URL: http://nginx # ← runtime, no rebuild needed
     restart: always
 
   backend:
     build:
       context: .
-      dockerfile: docker/php/prod/Dockerfile
+      dockerfile: docker/prod/Dockerfile
     expose:
       - "9000"
     environment:
